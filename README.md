@@ -1,3 +1,3 @@
 # README
 
-This repository is for the final project in course *B/S Arch Software Design*.
+This repository contains my final project for course *B/S Arch Software Design*.
