@@ -9,8 +9,10 @@
     "build": "react-scripts build && rm -rf server/public && mv build server/public",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server-start": "cd server && npm run start"
+    "server-start": "cd server && npm run dev",
+    "whole": "concurrently \"npm run server-start\" \"npm run start\""
   },
+  "proxy": "http://localhost:3000",
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -34,6 +36,7 @@
     "@material-ui/styles": "^4.10.0",
     "chart.js": "^2.9.4",
     "clsx": "^1.1.1",
+    "concurrently": "^6.2.0",
     "formik": "^2.1.5",
     "history": "^5.0.0",
     "install": "^0.13.0",
