@@ -9,6 +9,7 @@ import NotFound from 'src/pages/NotFound';
 import ProductList from 'src/pages/ProductList';
 import Register from 'src/pages/Register';
 import Settings from 'src/pages/Settings';
+import DeviceList from 'src/pages/DeviceList';
 
 const routes = [
   {
@@ -20,6 +21,7 @@ const routes = [
       { path: 'dashboard', element: <Dashboard /> },
       { path: 'products', element: <ProductList /> },
       { path: 'settings', element: <Settings /> },
+      { path: 'devices', element: <DeviceList /> },
       { path: '*', element: <Navigate to="/404" /> }
     ]
   },
