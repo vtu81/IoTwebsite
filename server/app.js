@@ -7,6 +7,10 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var testapiRouter = require('./routes/testapi');
+var loginRouter = require('./routes/login');
+var registerRouter = require('./routes/register');
+var addDeviceRouter = require('./routes/add_device');
+var deleteDeviceRouter = require('./routes/delete_device');
 
 var app = express();
 
@@ -23,9 +27,14 @@ app.use(cookieParser());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/testapi', testapiRouter);
+app.use('/login', loginRouter);
+app.use('/register', registerRouter);
+app.use('/add_device', addDeviceRouter);
+app.use('/delete_device', deleteDeviceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+  console.log('404!!!')
   next(createError(404));
 });
 

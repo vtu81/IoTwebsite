@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Avatar,
@@ -100,7 +100,7 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
           alignItems: 'center',
           display: 'flex',
           flexDirection: 'column',
-          p: 2
+          p: 1
         }}
       >
         <Avatar
@@ -109,7 +109,8 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
           sx={{
             cursor: 'pointer',
             width: 64,
-            height: 64
+            height: 64,
+            m: 1
           }}
           to="/app/account"
         />
@@ -117,13 +118,7 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
           color="textPrimary"
           variant="h5"
         >
-          {user.name}
-        </Typography>
-        <Typography
-          color="textSecondary"
-          variant="body2"
-        >
-          {user.jobTitle}
+          {sessionStorage.getItem('user_name')?sessionStorage.getItem('user_name'):'Guest'}
         </Typography>
       </Box>
       <Divider />
@@ -142,40 +137,25 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
       <Box sx={{ flexGrow: 1 }} />
       <Box
         sx={{
-          backgroundColor: 'background.default',
-          m: 2,
-          p: 2
+          display: 'flex',
+          justifyContent: 'center',
+          m: 5,
+          pt: 2
         }}
       >
-        <Typography
-          align="center"
-          gutterBottom
-          variant="h4"
+        <Button
+          color="secondary"
+          component="a"
+          href="/login"
+          variant="contained"
+          onClick={() => {
+              // const navigate = useNavigate(); navigate('/app/dashboard', { replace: true }); 
+              window.sessionStorage.removeItem("user_name");
+            }
+          }
         >
-          Need more?
-        </Typography>
-        <Typography
-          align="center"
-          variant="body2"
-        >
-          Upgrade to PRO version and access 20 more screens
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            pt: 2
-          }}
-        >
-          <Button
-            color="primary"
-            component="a"
-            href="https://react-material-kit.devias.io"
-            variant="contained"
-          >
-            See PRO version
-          </Button>
-        </Box>
+          Logout
+        </Button>
       </Box>
     </Box>
   );

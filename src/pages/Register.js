@@ -12,9 +12,18 @@ import {
   TextField,
   Typography
 } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
 
 const Register = () => {
   const navigate = useNavigate();
+  const [registerStatus, setRegisterStatus] = useState({});
+  
+  useEffect(() => {
+    setRegisterStatus({
+      'msg': 'Use your email to create new account',
+      'color': 'textSecondary'
+    });
+  }, []);
 
   return (
     <>
@@ -41,15 +50,61 @@ const Register = () => {
             }}
             validationSchema={
               Yup.object().shape({
-                email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                firstName: Yup.string().max(255).required('First name is required'),
-                lastName: Yup.string().max(255).required('Last name is required'),
-                password: Yup.string().max(255).required('password is required'),
+                email: Yup.string().email('Must be a valid email').max(64).required('Email is required'),
+                // firstName: Yup.string().max(255).required('First name is required'),
+                // lastName: Yup.string().max(255).required('Last name is required'),
+                userName: Yup.string().max(30).required('User name is required'),
+                password: Yup.string().max(255).required('Password is required'),
                 policy: Yup.boolean().oneOf([true], 'This field must be checked')
               })
             }
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
+            onSubmit={(values, {setSubmitting}) => {
+              var md5 = require("blueimp-md5");
+              var password_hash = md5(values.password);
+              console.log(values);
+              console.log('password md5 hash: ', password_hash);
+              var sessionStorage = window.sessionStorage;
+
+              fetch('/register',{
+                  method:'post',
+                  headers:{
+                    "Access-Control-Allow-Origin": "*",
+                    "Accept": 'application/json',
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Type": "application/json;charset=UTF-8",
+                  },
+                  // body:`email=${values.username}&password_hash=${password_hash}`
+                  body: JSON.stringify({
+                    "user_name": values.userName,
+                    "password_hash": password_hash,
+                    "email": values.email,
+                    "phone_number": values.phoneNumber
+                  })
+              }).then(res=>{
+                res.json().then((ret)=>{
+                  console.log(ret);
+                  if(ret.success) // Successfully register!
+                  {
+                    setRegisterStatus({
+                      'msg': ret.msg,
+                      'color': 'textSecondary'
+                    });
+                    console.log(ret.msg);
+                    sessionStorage.setItem('user_name', values.userName);
+                    console.log('sessionStorage.getItem(\'user_name\')', sessionStorage.getItem('user_name'));
+                    navigate('/app/dashboard', { replace: true });
+                  }
+                  else
+                  {
+                    setRegisterStatus({
+                      'msg': ret.msg,
+                      'color': 'error.main'
+                    });
+                    console.log(ret.msg);
+                    setSubmitting(false);
+                  }
+                })
+              })
             }}
           >
             {({
@@ -70,14 +125,14 @@ const Register = () => {
                     Create new account
                   </Typography>
                   <Typography
-                    color="textSecondary"
+                    color={registerStatus.color}
                     gutterBottom
                     variant="body2"
                   >
-                    Use your email to create new account
+                    {registerStatus.msg}
                   </Typography>
                 </Box>
-                <TextField
+                {/* <TextField
                   error={Boolean(touched.firstName && errors.firstName)}
                   fullWidth
                   helperText={touched.firstName && errors.firstName}
@@ -99,6 +154,18 @@ const Register = () => {
                   onBlur={handleBlur}
                   onChange={handleChange}
                   value={values.lastName}
+                  variant="outlined"
+                /> */}
+                <TextField
+                  error={Boolean(touched.userName && errors.userName)}
+                  fullWidth
+                  helperText={touched.userName && errors.userName}
+                  label="User Name"
+                  margin="normal"
+                  name="userName"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  value={values.userName}
                   variant="outlined"
                 />
                 <TextField
@@ -125,6 +192,19 @@ const Register = () => {
                   onChange={handleChange}
                   type="password"
                   value={values.password}
+                  variant="outlined"
+                />
+                <TextField
+                  error={Boolean(touched.phoneNumber && errors.phoneNumber)}
+                  fullWidth
+                  helperText={touched.phoneNumber && errors.phoneNumber}
+                  label="Phone Number"
+                  margin="normal"
+                  name="phoneNumber"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="number"
+                  value={values.phoneNumber}
                   variant="outlined"
                 />
                 <Box

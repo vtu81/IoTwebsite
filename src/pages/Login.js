@@ -34,16 +34,49 @@ const Login = () => {
         <Container maxWidth="sm">
           <Formik
             initialValues={{
-              email: 'demo@devias.io',
-              password: 'Password123'
+              email: 'vtu@zju.edu.cn',
+              password: '123456'
             }}
             validationSchema={Yup.object().shape({
               email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
               password: Yup.string().max(255).required('Password is required')
             })}
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
-            }}
+            onSubmit={(values, {setSubmitting}) => {
+              var md5 = require("blueimp-md5");
+              var password_hash = md5(values.password);
+              console.log(values);
+              console.log('password md5 hash: ', password_hash);
+              var obj = {"email": values.email, "password_hash": password_hash};
+              var sessionStorage = window.sessionStorage;
+
+              fetch('/login',{
+                  method:'post',
+                  headers:{
+                    "Access-Control-Allow-Origin": "*",
+                    "Accept": 'application/json',
+                    // "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Type": "application/json;charset=UTF-8",
+                  },
+                  // body:`email=${values.username}&password_hash=${password_hash}`
+                  body: JSON.stringify(obj)
+              }).then(res=>{
+                res.json().then((sql_ret)=>{
+                  console.log(sql_ret);
+                  if(sql_ret[0].num > 0) // Successfully login!
+                  {
+                    sessionStorage.setItem('user_name', sql_ret[0].user_name);
+                    console.log('sessionStorage.getItem(\'user_name\')', sessionStorage.getItem('user_name'));
+                    navigate('/app/dashboard', { replace: true });
+                  }
+                  else
+                  {
+                    console.log('Login failed!');
+                    setSubmitting(false);
+                  }
+                })
+              })
+            }
+          }
           >
             {({
               errors,
