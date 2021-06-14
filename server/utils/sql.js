@@ -1,23 +1,10 @@
 var mysql  = require('mysql');
+const mysql_config = require('./mysql_config.json')
 
-var mysql_connect_info = {
-    host     : 'secret',
-    user     : 'secret',
-    password : 'secret',
-    database : 'secret',
-    port     : 3306
-}
-
-var pool = mysql.createPool({
-    host     : 'secret',
-    user     : 'secret',
-    password : 'secret',
-    database : 'secret',
-    port     : 3306
-});
-
+var mysql_connect_info = mysql_config;
 // var mysql_connection = mysql.createConnection(mysql_connect_info);
 // mysql_connection.connect();
+var pool = mysql.createPool(mysql_config);
 
 module.exports = {
     mysql_connect_info,

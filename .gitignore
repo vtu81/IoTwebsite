@@ -4,3 +4,4 @@
 .DS_Store
 package-lock.json
 /server/package-lock.json
+/server/utils/mysql_config.json
