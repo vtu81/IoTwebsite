@@ -40,11 +40,11 @@ const MessageDialog = ({message, viewingMessage, setViewingMessage}) => {
                 Object.keys(message).length?
                 <DialogContent>
                     <DialogContentText>
-                        <h3>Message #{message.msgid}</h3>
+                        <Typography variant='h3'>Message #{message.msgid}</Typography>
                         <Box sx={{ m: 2, p: 2, border: '1px dashed grey' }}>
                             <Typography>{message.info}</Typography>
                         </Box>
-                        Sent by <b>{message.clientid}</b> at <b>{message.timestamp}</b> with value <b>{message.value}</b><br/>
+                        <Typography>Sent by <b>{message.clientid}</b> at <b>{message.timestamp}</b> with value <b>{message.value}</b></Typography>
                     </DialogContentText>
                     <SingleMessageMap height='50vh' message={message} />
                 </DialogContent>

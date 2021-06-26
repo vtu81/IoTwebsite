@@ -116,12 +116,6 @@ const DeviceList = () => {
   
   if(!sessionStorage.getItem('user_name')) return (<Navigate to="/home" />)
   else return (
-    // <div>
-    //   <p>You clicked {count} times</p>
-    //   <button onClick={() => {setCount(count + 1); console.log('devices: ', devices)}}>
-    //       Click me
-    //   </button>
-    // </div>
     <>
       <Helmet>
         <title>Devices | IoTwebsite</title>

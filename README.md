@@ -14,9 +14,13 @@ Pages' screen shots look like these:
 
 ![](assets/demo_devices.png)
 
+![](assets/demo_device_detail.png)
+
 ![](assets/demo_messages1.png)
 
 ![](assets/demo_messages2.png)
+
+![](assets/demo_message_detail.png)
 
 ![](assets/demo_maps.png)
 

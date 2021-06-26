@@ -55,18 +55,18 @@ const DeviceDialog = ({device, viewingDevice, setViewingDevice}) => {
             {
                 Object.keys(device).length?
                 <DialogContent>
-                    <h2>{device.device_name}</h2>
+                    <Typography variant='h2'>{device.device_name}</Typography>
                     <DialogContentText>
-                        #{device.clientid}
+                        <Typography>#{device.clientid}</Typography>
                     </DialogContentText>
                         {
                             device.offline_at?
-                            <p style={{color: '#69778b'}}><b>Offlined</b> at {device.offline_at}</p>
-                            :<p style={{color: 'teal'}}><b>Online</b></p>
+                            <Typography style={{color: '#69778b'}}><b>Offlined</b> at {device.offline_at}</Typography>
+                            :<Typography style={{color: 'teal'}}><b>Online</b></Typography>
                         }
                     <DialogContentText>
-                        Latestly onlined at {device.online_at}<br/>
-                        Created at {device.created}
+                        <Typography>Latestly onlined at {device.online_at}</Typography>
+                        <Typography>Created at {device.created}</Typography>
                     </DialogContentText>
                     <SingleDeviceMaps height='50vh' device={device} />
                 </DialogContent>
