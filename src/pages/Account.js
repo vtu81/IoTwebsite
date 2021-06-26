@@ -2,48 +2,58 @@ import { Helmet } from 'react-helmet';
 import {
   Box,
   Container,
-  Grid
+  Grid,
 } from '@material-ui/core';
 import AccountProfile from 'src/components/account/AccountProfile';
 import AccountProfileDetails from 'src/components/account/AccountProfileDetails';
+import fetchAccount from 'src/utils/fetchAccount';
+import AccountPassword from 'src/components/account/AccountPassword'
+import React, { useState, useEffect } from 'react';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import { Navigate } from 'react-router-dom';
 
-const Account = () => (
-  <>
-    <Helmet>
-      <title>Account | Material Kit</title>
-    </Helmet>
-    <Box
-      sx={{
-        backgroundColor: 'background.default',
-        minHeight: '100%',
-        py: 3
-      }}
-    >
-      <Container maxWidth="lg">
-        <Grid
-          container
-          spacing={3}
+const Account = () => {
+  const [account, setAccount] = useState({});
+  
+  useEffect(() => {
+    if(sessionStorage.getItem('user_name'))
+    {
+      fetchAccount().then((obj) => {
+        setAccount(obj);
+      });
+    }
+  }, []);
+
+  if(!sessionStorage.getItem('user_name')) return (<Navigate to="/home" />)
+  else return (
+    <>
+      <PerfectScrollbar>
+        <Helmet>
+          <title>Account | IoTwebsite</title>
+        </Helmet>
+        <Box
+          sx={{
+            backgroundColor: 'background.default',
+            minHeight: '100%',
+            py: 3,
+            mt: '4%',
+            // display: 'flex',
+            // height: '100%',
+            // justifyContent: 'center',
+            // flexDirection: 'column',
+          }}
         >
-          <Grid
-            item
-            lg={4}
-            md={6}
-            xs={12}
-          >
-            <AccountProfile />
-          </Grid>
-          <Grid
-            item
-            lg={8}
-            md={6}
-            xs={12}
-          >
-            <AccountProfileDetails />
-          </Grid>
-        </Grid>
-      </Container>
-    </Box>
-  </>
-);
+          <Container maxWidth="sm">
+            <Box>
+                <AccountProfile account={account} />
+                <AccountProfileDetails account={account} />
+                <AccountPassword />
+            </Box>
+          </Container>
+        </Box>
+      </PerfectScrollbar>
+    </>
+  )
+};
 
 export default Account;

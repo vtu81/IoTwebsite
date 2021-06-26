@@ -3,6 +3,7 @@ const Logo = (props) => (
     alt="Logo"
     src="/static/logo.svg"
     {...props}
+    style={{width: 40}}
   />
 );
 

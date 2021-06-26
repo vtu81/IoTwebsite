@@ -1,7 +1,4 @@
 import { Helmet } from 'react-helmet';
-// import CustomerListResults from 'src/components/customer/CustomerListResults';
-// import CustomerListToolbar from 'src/components/customer/CustomerListToolbar';
-// import customers from 'src/__mocks__/customers';
 
 import React, { useState, useEffect } from 'react';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -12,6 +9,7 @@ import {
   Card,
   CardContent,
   Checkbox,
+  Chip,
   Container,
   Dialog,
   DialogActions,
@@ -32,49 +30,21 @@ import {
   TextField,
   Typography
 } from '@material-ui/core';
-import { Search as SearchIcon } from 'react-feather';
+import { Search as SearchIcon, RefreshCw as RefreshIcon } from 'react-feather';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import { Link } from 'react-router-dom';
+import fetchDeviceList from 'src/utils/fetchDeviceList';
+import DeviceListToolbar from 'src/components/devices/DeviceListToolbar';
+import DeviceChip from 'src/components/shared/DeviceChip';
+import { Navigate } from 'react-router-dom';
 
 const DeviceList = () => {
   const [devices, setDevices] = useState([]);
+  const [all_devices, setAllDevices] = useState([]);
   const [addingDevice, setAddingDevice] = useState(false);
   const [checked, setChecked] = useState([]);
   const [deletingDevice, setDeletingDevice] = useState(false);
-
-  const fetchDeviceList = () => {
-    return new Promise((resolve) => {
-      fetch('/testapi',{
-          method:'post',
-          headers:{
-            "Access-Control-Allow-Origin": "*",
-            "Accept": 'application/json',
-            // "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Type": "application/json;charset=UTF-8",
-          },
-          // body:`email=${values.username}&password_hash=${password_hash}`
-          body: JSON.stringify({'user_name': window.sessionStorage.getItem('user_name')?window.sessionStorage.getItem('user_name'):'Guest'})
-      }).then(res=>{
-        res.json().then((sql_ret)=>{
-          console.log(sql_ret);
-          var data = [];
-          for(let i in sql_ret)
-          {
-            var obj = {};
-            obj.id = sql_ret[i].id;
-            obj.deviceName = sql_ret[i].device_name;
-            obj.deviceID = sql_ret[i].clientid;
-            if(sql_ret[i].offline_at != null) obj.state = 'Offline';
-            else obj.state = 'Online';
-            data.push(obj);
-          }
-          console.log('data: ', data);
-          // setDevices(data);
-          resolve(data);
-        })
-      })
-    });
-  }
 
   const ifAllCheckBoxSelected = () => {
     for(var i = 0; i < devices.length; i++)
@@ -96,12 +66,46 @@ const DeviceList = () => {
     return false;
   }
 
+  const searchByContent = (search_content) => {
+    // Delete all empty string first
+    for(var i = 0; i < search_content.length; i++)
+    {
+      if(search_content[i] == "")
+      {
+        console.log('deleting ', i)
+        search_content.splice(i, 1);
+        i--;
+      }
+    }
+    // If nothing to search
+    if(search_content.length == 0)
+    {
+      setDevices(all_devices);
+      return;
+    }
+    var tmp = [];
+    for(var device of all_devices)
+    {
+      for(var item of search_content)
+        if(device.device_name.search(item) >= 0 || device.clientid.search(item) >= 0)
+        {
+          tmp.push(device);
+          break;
+        }
+    }
+    setDevices(tmp);
+  };
+
   // Initial run: fetch device list from backend
   useEffect(() => {
-    // Fetch device list
-    fetchDeviceList().then((data) => {
-      setDevices(data);
-    })
+    if(sessionStorage.getItem('user_name'))
+    {
+      // Fetch device list
+      fetchDeviceList().then((data) => {
+        setDevices(data);
+        setAllDevices(data);
+      })
+    }
   }, []);
 
   // Side effect of `devices`: changing the `checked` state
@@ -109,8 +113,9 @@ const DeviceList = () => {
     console.log('Side effect of `devices`');
     setChecked(new Array(devices.length).fill(false));
   }, [devices]);
-
-  return (
+  
+  if(!sessionStorage.getItem('user_name')) return (<Navigate to="/home" />)
+  else return (
     // <div>
     //   <p>You clicked {count} times</p>
     //   <button onClick={() => {setCount(count + 1); console.log('devices: ', devices)}}>
@@ -119,7 +124,7 @@ const DeviceList = () => {
     // </div>
     <>
       <Helmet>
-        <title>Devices | Material Kit</title>
+        <title>Devices | IoTwebsite</title>
       </Helmet>
       <Box
         sx={{
@@ -129,66 +134,25 @@ const DeviceList = () => {
         }}
       >
         <Container maxWidth={false}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end'
-            }}
-          >
-            <Button sx={{ mx: 1 }}
-              onClick={() => {
-                console.log('Check boxes\' state: ', checked);
-                var i = 0
-                  for(i = 0; i < devices.length; i++)
+          <DeviceListToolbar
+            deleteDevice={() => {
+              console.log('Check boxes\' state: ', checked);
+              var i = 0
+                for(i = 0; i < devices.length; i++)
+                {
+                  if(checked[i] == true)
                   {
-                    if(checked[i] == true)
-                    {
-                      break;
-                    }
+                    break;
                   }
-                  if(i < devices.length) setDeletingDevice(true);
-                  else window.alert('No device selected! Please select some devices to delete.');
-              }}
-            >
-              Delete
-            </Button>
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={() => {
-                  setAddingDevice(true);
                 }
-              }
-            >
-              Add/Edit device
-            </Button>
-          </Box>
-
-          {/* <Box sx={{ mt: 3 }}>
-            <Card>
-              <CardContent>
-                <Box sx={{ maxWidth: 500 }}>
-                  <TextField
-                    fullWidth
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SvgIcon
-                            fontSize="small"
-                            color="action"
-                          >
-                            <SearchIcon />
-                          </SvgIcon>
-                        </InputAdornment>
-                      )
-                    }}
-                    placeholder="Search device"
-                    variant="outlined"
-                  />
-                </Box>
-              </CardContent>
-            </Card>
-          </Box> */}
+                if(i < devices.length) setDeletingDevice(true);
+                else window.alert('No device selected! Please select some devices to delete.');
+            }}
+            addDevice={() => {setAddingDevice(true)}}
+            searchDevices={(search_content) => {
+              searchByContent(search_content);
+            }}
+          />
 
           <Box sx={{ pt: 3 }}>
             <Card>
@@ -241,13 +205,15 @@ const DeviceList = () => {
                             }}/>
                           </TableCell>
                           <TableCell>
-                            <a href='/app/dashboard'>{device.deviceName}</a>
+                            {device.device_name}
                           </TableCell>
                           <TableCell>
-                            {device.deviceID}
+                            <DeviceChip clientid={device.clientid} />
                           </TableCell>
                           <TableCell>
-                            {device.state}
+                            {<Typography type="body2" style={device.offline_at?{color: '#69778b', fontSize: 14}:{color: 'teal', fontSize: 14}}>
+                              {device.offline_at?`Offline`:`Online`}
+                            </Typography>}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -263,12 +229,12 @@ const DeviceList = () => {
       <Container maxWidth="sm">
         <Formik
           initialValues={{
-            deviceID: '',
-            deviceName: ''
+            clientid: '',
+            device_name: ''
           }}
           validationSchema={Yup.object().shape({
-            deviceID: Yup.string().max(64).required('Device ID is required'),
-            deviceName: Yup.string().max(64).required('Device name is required')
+            clientid: Yup.string().max(64).required('Device ID is required'),
+            device_name: Yup.string().max(64).required('Device name is required')
           })}
           onSubmit={(values, {setSubmitting}) => {
             console.log('Submitting...');
@@ -286,8 +252,8 @@ const DeviceList = () => {
                 // body:`email=${values.username}&password_hash=${password_hash}`
                 body: JSON.stringify({
                   "user_name": window.sessionStorage.getItem('user_name')?window.sessionStorage.getItem('user_name'):'Guest',
-                  "clientid": values.deviceID,
-                  "device_name": values.deviceName
+                  "clientid": values.clientid,
+                  "device_name": values.device_name
                 })
             }).then(res=>{
               res.json().then((ret)=>{
@@ -296,6 +262,7 @@ const DeviceList = () => {
                 {
                   fetchDeviceList().then((data) => {
                     setDevices(data);
+                    setAllDevices(data);
                     // setChecked(new Array(data.length).fill(false));
                   })
                   window.alert(ret.msg);
@@ -329,7 +296,7 @@ const DeviceList = () => {
               aria-labelledby="simple-dialog-title"
               open={addingDevice}
             >
-              <DialogTitle id="simple-dialog-title">Add/Update device (name)</DialogTitle>
+              <DialogTitle id="simple-dialog-title">Add/Edit Device Name</DialogTitle>
               <DialogContent>
                 <DialogContentText>
                   Enter the <b>device ID</b> of your device which has already connected to the MQTT server before,
@@ -337,26 +304,26 @@ const DeviceList = () => {
                 </DialogContentText>
                   <TextField
                     autoFocus
-                    error={Boolean(touched.deviceID && errors.deviceID)}
-                    helperText={touched.deviceID && errors.deviceID}
+                    error={Boolean(touched.clientid && errors.clientid)}
+                    helperText={touched.clientid && errors.clientid}
                     margin="dense"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    name="deviceID"
+                    name="clientid"
                     label="Device ID"
-                    value={values.deviceID}
+                    value={values.clientid}
                     fullWidth
                     variant="standard"
                   />
                   <TextField
-                    error={Boolean(touched.deviceName && errors.deviceName)}
-                    helperText={touched.deviceName && errors.deviceName}
+                    error={Boolean(touched.device_name && errors.device_name)}
+                    helperText={touched.device_name && errors.device_name}
                     margin="dense"
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    name="deviceName"
+                    name="device_name"
                     label="Device Name"
-                    value={values.deviceName}
+                    value={values.device_name}
                     fullWidth
                     variant="standard"
                   />
@@ -417,10 +384,10 @@ const DeviceList = () => {
                       key={device.id}
                     >
                       <TableCell>
-                        <a href='/app/dashboard'>{device.deviceName}</a>
+                        <a href='/app/dashboard'>{device.device_name}</a>
                       </TableCell>
                       <TableCell>
-                        {device.deviceID}
+                        {device.clientid}
                       </TableCell>
                     </TableRow>);
                   }
@@ -454,8 +421,8 @@ const DeviceList = () => {
                     },
                     body: JSON.stringify({
                       "user_name": window.sessionStorage.getItem('user_name')?window.sessionStorage.getItem('user_name'):'Guest',
-                      "clientid": device.deviceID,
-                      "device_name": device.deviceName
+                      "clientid": device.clientid,
+                      "device_name": device.device_name
                     })
                 }).then(res=>{
                   res.json().then((ret)=>{
@@ -469,6 +436,7 @@ const DeviceList = () => {
                         console.log(ret.msg);
                         fetchDeviceList().then((data) => {
                           setDevices(data);
+                          setAllDevices(data);
                           // setChecked(new Array(data.length).fill(false));
                         })
                         setDeletingDevice(false);
@@ -480,6 +448,7 @@ const DeviceList = () => {
                       console.log(ret.msg);
                       fetchDeviceList().then((data) => {
                         setDevices(data);
+                        setAllDevices(data);
                         // setChecked(new Array(data.length).fill(false));
                       })
                       setDeletingDevice(false);
@@ -496,27 +465,6 @@ const DeviceList = () => {
       </Dialog>
     </>
   );
-
-
-  // <>
-  //   <Helmet>
-  //     <title>Devices | Material Kit</title>
-  //   </Helmet>
-  //   <Box
-  //     sx={{
-  //       backgroundColor: 'background.default',
-  //       minHeight: '100%',
-  //       py: 3
-  //     }}
-  //   >
-      // <Container maxWidth={false}>
-      //   <CustomerListToolbar />
-  //       <Box sx={{ pt: 3 }}>
-  //         <CustomerListResults customers={customers} />
-  //       </Box>
-  //     </Container>
-  //   </Box>
-  // </>
 };
 
 export default DeviceList;

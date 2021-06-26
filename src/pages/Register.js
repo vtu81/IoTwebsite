@@ -28,7 +28,7 @@ const Register = () => {
   return (
     <>
       <Helmet>
-        <title>Register | Material Kit</title>
+        <title>Register | IoTwebsite</title>
       </Helmet>
       <Box
         sx={{
@@ -117,7 +117,7 @@ const Register = () => {
               values
             }) => (
               <form onSubmit={handleSubmit}>
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 0 }}>
                   <Typography
                     color="textPrimary"
                     variant="h2"

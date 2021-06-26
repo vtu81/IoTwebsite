@@ -4,19 +4,71 @@ import {
   Container,
   Grid
 } from '@material-ui/core';
-import Budget from 'src/components/dashboard//Budget';
-import LatestOrders from 'src/components/dashboard//LatestOrders';
-import LatestProducts from 'src/components/dashboard//LatestProducts';
-import Sales from 'src/components/dashboard//Sales';
-import TasksProgress from 'src/components/dashboard//TasksProgress';
-import TotalCustomers from 'src/components/dashboard//TotalCustomers';
-import TotalProfit from 'src/components/dashboard//TotalProfit';
-import TrafficByDevice from 'src/components/dashboard//TrafficByDevice';
+import TotalDevices from 'src/components/dashboard//TotalDevices';
+import LatestMessages from 'src/components/dashboard//LatestMessages';
+import RecentDevices from 'src/components/dashboard//RecentDevices';
+import FirstChart from 'src/components/dashboard//FirstChart';
+import AlertRate from 'src/components/dashboard//AlertRate';
+import TotalMessages from 'src/components/dashboard//TotalMessages';
+import TotalInfoSize from 'src/components/dashboard//TotalInfoSize';
+import MessageByDevice from 'src/components/dashboard/MessageByDevice';
+import React, { useState, useEffect } from 'react';
+import fetchDeviceList from 'src/utils/fetchDeviceList';
+import fetchAllMessages from 'src/utils/fetchAllMessages';
+import { Navigate } from 'react-router-dom';
 
-const Dashboard = () => (
+const Dashboard = () => {
+  const [devices, setDevices] = useState([]);
+  const [messages, setMessages] = useState([]);
+  
+  // Initial run: fetch messages from backend
+  useEffect(() => {
+    if(sessionStorage.getItem('user_name'))
+    {
+      // Fetch all messages
+      fetchAllMessages().then((data) => {
+        setMessages(data);
+      });
+      // Fetch device list
+      fetchDeviceList().then((data) => {
+        setDevices(data);
+      });
+    }
+  }, []);
+
+  const getAlertRate = (messages) => {
+    var message_num = messages.length;
+    var alert_num = 0.0;
+    for(var obj of messages)
+    {
+      if(obj.alert) alert_num++;
+    }
+    if(message_num == 0) return 0;
+    return (alert_num / message_num);
+  };
+
+  const getOnlineDeviceNum = (devices) => {
+    var online_num = 0;
+    for(var obj of devices)
+    {
+      if(obj.offline_at == null) online_num++;
+    }
+    return online_num;
+  };
+
+  const getTotalInfoSize = (messages) => {
+    var size = 0;
+    for(var obj of messages)
+    {
+      size += obj.info.length;
+    }
+    return size;
+  };
+  
+  if(sessionStorage.getItem('user_name')) return (
   <>
     <Helmet>
-      <title>Dashboard | Material Kit</title>
+      <title>Dashboard | IoTwebsite</title>
     </Helmet>
     <Box
       sx={{
@@ -37,7 +89,7 @@ const Dashboard = () => (
             xl={3}
             xs={12}
           >
-            <Budget />
+            <TotalDevices devices_num={devices.length} online_num={getOnlineDeviceNum(devices)} />
           </Grid>
           <Grid
             item
@@ -46,7 +98,7 @@ const Dashboard = () => (
             xl={3}
             xs={12}
           >
-            <TotalCustomers />
+            <TotalMessages messages_num={messages.length} />
           </Grid>
           <Grid
             item
@@ -55,7 +107,7 @@ const Dashboard = () => (
             xl={3}
             xs={12}
           >
-            <TasksProgress />
+            <TotalInfoSize total_info_size={getTotalInfoSize(messages)} />
           </Grid>
           <Grid
             item
@@ -64,7 +116,7 @@ const Dashboard = () => (
             xl={3}
             xs={12}
           >
-            <TotalProfit sx={{ height: '100%' }} />
+            <AlertRate alert_rate={getAlertRate(messages)} />
           </Grid>
           <Grid
             item
@@ -73,7 +125,7 @@ const Dashboard = () => (
             xl={9}
             xs={12}
           >
-            <Sales />
+            <FirstChart messages={messages} devices={devices} />
           </Grid>
           <Grid
             item
@@ -82,7 +134,7 @@ const Dashboard = () => (
             xl={3}
             xs={12}
           >
-            <TrafficByDevice sx={{ height: '100%' }} />
+            <MessageByDevice messages={messages} devices={devices} />
           </Grid>
           <Grid
             item
@@ -91,7 +143,7 @@ const Dashboard = () => (
             xl={3}
             xs={12}
           >
-            <LatestProducts sx={{ height: '100%' }} />
+            <RecentDevices sx={{ height: '100%' }} devices={devices} />
           </Grid>
           <Grid
             item
@@ -100,12 +152,14 @@ const Dashboard = () => (
             xl={9}
             xs={12}
           >
-            <LatestOrders />
+            <LatestMessages messages={messages} />
           </Grid>
         </Grid>
       </Container>
     </Box>
   </>
-);
+  )
+  else return (<Navigate to="/home" />)
+};
 
 export default Dashboard;

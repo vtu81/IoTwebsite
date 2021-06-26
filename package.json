@@ -5,14 +5,14 @@
   "version": "1.0.0",
   "private": false,
   "scripts": {
-    "start": "PORT=5000 && react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build && rm -rf server/public && mv build server/public",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server-start": "cd server && npm run dev",
     "whole": "concurrently \"npm run server-start\" \"npm run start\""
   },
-  "proxy": "http://localhost:3000",
+  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": "react-app"
   },
@@ -45,6 +45,7 @@
     "moment": "^2.27.0",
     "npm": "^7.7.4",
     "nprogress": "^0.2.0",
+    "particles-bg": "^2.5.5",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-chartjs-2": "^2.10.0",
@@ -52,6 +53,7 @@
     "react-feather": "^2.0.8",
     "react-helmet": "^6.1.0",
     "react-perfect-scrollbar": "^1.5.8",
+    "react-reveal": "^1.2.2",
     "react-router": "^6.0.0-beta.0",
     "react-router-dom": "^6.0.0-beta.0",
     "react-scripts": "^4.0.0",

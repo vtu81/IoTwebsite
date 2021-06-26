@@ -1,8 +1,36 @@
 # README
 
-This repository contains my final project for course *B/S Arch Software Design*.
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=vtu.IoTclient)
+
+This repository contains my final project for course *B/S Arch Software Design*. The website is an IoT platform, consisting of a **MQTT server** receiving info from (simulated) devices, a **MySQL server** storing data, an **Express Node.js** backend, a **React** with **Material UI** frontend,
+
+## Demo
+
+Pages' screen shots look like these:
+
+![](assets/demo_home.png)
+
+![](assets/demo_dashboard.png)
+
+![](assets/demo_devices.png)
+
+![](assets/demo_messages1.png)
+
+![](assets/demo_messages2.png)
+
+![](assets/demo_maps.png)
+
+![](assets/demo_account.png)
+
+![](assets/demo_login.png)
+
+![](assets/demo_register.png)
+
+---
 
 ## Quick Setup
+
+### Frontend & Backend
 
 First install dependency with:
 ```bash
@@ -17,37 +45,79 @@ Start both the frontend and the backend concurrently (in development mode) with:
 npm run whole
 ```
 
----
+By default, the frontend runs at localhost:3000, and the backend runs at localhost:3001. You can customized the ports, but do remember to alter `./package.json` at line:
 
-**If you are willing to setup the frontend and the backend respectively, check the content below.**
-
-### Frontend
-
-Start the frontend server (for debug) with
-
-```bash
-# Under the root directory of the repository
-npm start
+```json
+"proxy": "http://localhost:3001", # proxy for the frontend to the backend
 ```
 
-Generate static files with
+Well, you should see the home page now :). But it's not done yet! You should also set up the MySQL database and the [EMQX Enterprise](https://www.emqx.cn/products/enterprise) MQTT server for the whole website to work.
 
-```bash
-# Under the root directory of the repository
-npm run build
+### MySQL Server
+
+First create a database named `mqtt`:
+
+```mysql
+create database mqtt;
+use mqtt;
 ```
 
-The default generate directory is `server/public`.
+Then set up some necessary tables: 
 
-### Backend
+```mysql
+# Table mqtt_client is only for EMQX server to write, and nodejs server to read
+CREATE TABLE `mqtt_client` (   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,   `clientid` varchar(64) DEFAULT NULL,   `state` varchar(3) DEFAULT NULL,   `node` varchar(64) DEFAULT NULL,   `online_at` datetime DEFAULT NULL,   `offline_at` datetime DEFAULT NULL,   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,   PRIMARY KEY (`id`),   KEY `mqtt_client_idx` (`clientid`),   UNIQUE KEY `mqtt_client_key` (`clientid`),   INDEX topic_index(`id`, `clientid`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
 
-Start the backend server with:
+# The following 3 tables are for nodejs server to read and write
+create table account(
+	user_name varchar(30) primary key,
+	password_hash varchar(64),
+	email varchar(64) unique,
+	phone_number varchar(64));
 
-```bash
-# Under the root directory of the repository
-cd server
-npm start # release
-# or
-npm run dev # debug
+create table device_info(
+	clientid varchar(64),
+	device_name varchar(64),
+	user_name varchar(64),
+	primary key (clientid, user_name),
+	foreign key (clientid) references mqtt_client(clientid),
+ 	foreign key (user_name) references account(user_name));
+
+create table message(
+  msgid int unsigned primary key auto_increment,
+  alert bit,
+  clientid varchar(64),
+  info varchar(256),
+  lat numeric(20, 14),
+  lng numeric(20, 14),
+  timestamp timestamp,
+  value int,
+	foreign key (clientid) references mqtt_client(clientid)
+);
 ```
 
+Then set up your MySQL account info at `server/utils/mysql_config.json` (create it if not exist!):
+
+```json
+{
+    "host"     : "YOUR MYSQL HOST",
+    "user"     : "YOUR USER NAME",
+    "password" : "PASSWORD",
+    "database" : "mqtt",
+    "port"     : YOUR MYSQL PORT
+}
+```
+
+### EMQX Server
+
+Follow the [EMQX official guide](https://docs.emqx.cn/enterprise/v4.3/#开始使用) to set up your EMQX server. Most importantly, remember to enable the `emqx_backend_mysql` plugin to let the MQTT server store device info into the `mqtt` database (check [here](https://docs.emqx.cn/enterprise/v4.3/backend/backend.html#数据存储设计) to see the detail).
+
+Then set up your MQTT config at `server/utils/mqtt_config.json` (create it if not exist!):
+
+```json
+{
+    "host": "YOUR MQTT HOST"
+}
+```
+
+Now run `npm run whole` again, the IoT platform should be fully activated. If anything go wrong, check the backend terminal or frontend console for debug info.

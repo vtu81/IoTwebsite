@@ -20,7 +20,7 @@ const Login = () => {
   return (
     <>
       <Helmet>
-        <title>Login | Material Kit</title>
+        <title>Login | IoTwebsite</title>
       </Helmet>
       <Box
         sx={{
@@ -28,7 +28,7 @@ const Login = () => {
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
         <Container maxWidth="sm">
@@ -70,6 +70,7 @@ const Login = () => {
                   }
                   else
                   {
+                    window.alert('Login failed! Check your email address and password.')
                     console.log('Login failed!');
                     setSubmitting(false);
                   }
@@ -88,7 +89,7 @@ const Login = () => {
               values
             }) => (
               <form onSubmit={handleSubmit}>
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 0 }}>
                   <Typography
                     color="textPrimary"
                     variant="h2"
@@ -100,10 +101,10 @@ const Login = () => {
                     gutterBottom
                     variant="body2"
                   >
-                    Sign in on the internal platform
+                    Sign in on the IoT platform
                   </Typography>
                 </Box>
-                <Grid
+                {/* <Grid
                   container
                   spacing={3}
                 >
@@ -152,7 +153,7 @@ const Login = () => {
                   >
                     or login with email address
                   </Typography>
-                </Box>
+                </Box> */}
                 <TextField
                   error={Boolean(touched.email && errors.email)}
                   fullWidth

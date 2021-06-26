@@ -9,26 +9,22 @@ import {
   Drawer,
   Hidden,
   List,
-  Typography
+  Typography,
+  IconButton
 } from '@material-ui/core';
 import {
   AlertCircle as AlertCircleIcon,
   BarChart as BarChartIcon,
   Lock as LockIcon,
-  Settings as SettingsIcon,
-  ShoppingBag as ShoppingBagIcon,
   User as UserIcon,
   UserPlus as UserPlusIcon,
-  Users as UsersIcon,
   Smartphone as SmartphoneIcon,
+  MessageCircle as MessageIcon,
+  Map as MapIcon,
+  GitHub as GitHubIcon,
+  Link as LinkIcon,
 } from 'react-feather';
 import NavItem from './NavItem';
-
-const user = {
-  avatar: '/static/images/avatars/avatar_6.png',
-  jobTitle: 'Senior Developer',
-  name: 'Katarina Smith'
-};
 
 const items = [
   {
@@ -42,40 +38,35 @@ const items = [
     title: 'Devices'
   },
   {
-    href: '/app/customers',
-    icon: UsersIcon,
-    title: 'Customers'
+    href: '/app/messages',
+    icon: MessageIcon,
+    title: 'Messages'
   },
   {
-    href: '/app/products',
-    icon: ShoppingBagIcon,
-    title: 'Products'
+    href: '/app/maps',
+    icon: MapIcon,
+    title: 'Maps'
   },
   {
     href: '/app/account',
     icon: UserIcon,
     title: 'Account'
   },
-  {
-    href: '/app/settings',
-    icon: SettingsIcon,
-    title: 'Settings'
-  },
-  {
-    href: '/login',
-    icon: LockIcon,
-    title: 'Login'
-  },
-  {
-    href: '/register',
-    icon: UserPlusIcon,
-    title: 'Register'
-  },
-  {
-    href: '/404',
-    icon: AlertCircleIcon,
-    title: 'Error'
-  }
+  // {
+  //   href: '/login',
+  //   icon: LockIcon,
+  //   title: 'Login'
+  // },
+  // {
+  //   href: '/register',
+  //   icon: UserPlusIcon,
+  //   title: 'Register'
+  // },
+  // {
+  //   href: '/404',
+  //   icon: AlertCircleIcon,
+  //   title: 'Error'
+  // }
 ];
 
 const DashboardSidebar = ({ onMobileClose, openMobile }) => {
@@ -105,12 +96,12 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
       >
         <Avatar
           component={RouterLink}
-          src={user.avatar}
+          src='/static/images/avatars/cat_avatar.png'
           sx={{
             cursor: 'pointer',
             width: 64,
             height: 64,
-            m: 1
+            m: 0
           }}
           to="/app/account"
         />
@@ -139,8 +130,8 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
         sx={{
           display: 'flex',
           justifyContent: 'center',
-          m: 5,
-          pt: 2
+          // m: 5,
+          // pt: 2
         }}
       >
         <Button
@@ -149,13 +140,40 @@ const DashboardSidebar = ({ onMobileClose, openMobile }) => {
           href="/login"
           variant="contained"
           onClick={() => {
-              // const navigate = useNavigate(); navigate('/app/dashboard', { replace: true }); 
               window.sessionStorage.removeItem("user_name");
             }
           }
         >
           Logout
         </Button>
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          mt: 4,
+          p: 0,
+          mb: 0,
+        }}
+      >
+          <IconButton href="http://vtu.life" color="inherit">
+            <LinkIcon />
+            <Typography sx={{ml: 0.5}}>My Page</Typography>
+          </IconButton>
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          mt: 0,
+          p: 0,
+          mb: 3,
+        }}
+      >
+          <IconButton href="https://github.com/vtu81/IoTwebsite" color="inherit">
+            <GitHubIcon />
+            <Typography sx={{ml: 0.5}}>Github</Typography>
+          </IconButton>
       </Box>
     </Box>
   );
