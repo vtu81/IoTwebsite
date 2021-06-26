@@ -58,6 +58,6 @@ app.use(function(err, req, res, next) {
   res.send('Not found')
 });
 
-// mqtt_client = require('./utils/mqtt.js')
+mqtt_client = require('./utils/mqtt.js')
 
 module.exports = app;
