@@ -51,7 +51,7 @@ By default, the frontend runs at localhost:3000, and the backend runs at localho
 "proxy": "http://localhost:3001", # proxy for the frontend to the backend
 ```
 
-Well, you should see the home page now :). But it's not done yet! You should also set up the MySQL database and the [EMQX Enterprise](https://www.emqx.cn/products/enterprise) MQTT server for the whole website to work.
+Well, you should see the home page now :). But it's not done yet! You should also set up the MySQL database, the [EMQX Enterprise](https://www.emqx.cn/products/enterprise) MQTT server, and the simulated IoT client devices for the whole website to work.
 
 ### MySQL Server
 
@@ -121,3 +121,21 @@ Then set up your MQTT config at `server/utils/mqtt_config.json` (create it if no
 ```
 
 Now run `npm run whole` again, the IoT platform should be fully activated. If anything go wrong, check the backend terminal or frontend console for debug info.
+
+### IoT Client
+
+The IoT client devices are simulated by code, lying under `./iotclient`. Follow the README of it:
+
+1. Compile the code with
+```bash
+mvn clean package
+```
+
+2. Run
+- Put `iot.properties` at the same directory of `iotclient-1.0.0.jar`.
+- Alter `iot.properties` to configure device number and related info.
+- Run with
+```bash
+java -jar iotclient-1.0.0.jar
+```
+- The simulated clients will automatically subscribe to the specified MQTT server, and keep sending some randomized messages.
