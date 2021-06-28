@@ -1,10 +1,11 @@
+var connect_config = require('src/utils/config.json');
 /**
  * Fetch a specific device's messages
  * @returns 'messages', an array of messages similar to the one in 'src/__mocks__/messages.js'
  */
 const fetchMessageOfDevice = (clientid) => {
     return new Promise((resolve) => {
-        fetch('/fetch_message/of_device',{
+        fetch(connect_config.backend_host + '/fetch_message/of_device',{
             method:'post',
             headers:{
             "Access-Control-Allow-Origin": "*",

@@ -13,6 +13,7 @@ import {
   Typography
 } from '@material-ui/core';
 import React, { useState, useEffect } from 'react';
+var connect_config = require('src/utils/config.json');
 
 const Register = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const Register = () => {
               console.log('password md5 hash: ', password_hash);
               var sessionStorage = window.sessionStorage;
 
-              fetch('/register',{
+              fetch(connect_config.backend_host + '/register',{
                   method:'post',
                   headers:{
                     "Access-Control-Allow-Origin": "*",

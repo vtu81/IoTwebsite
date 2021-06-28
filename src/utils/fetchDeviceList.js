@@ -1,8 +1,9 @@
 import { OpenInBrowser } from "@material-ui/icons";
+var connect_config = require('src/utils/config.json');
 
 const fetchDeviceList = () => {
     return new Promise((resolve) => {
-        fetch('/fetch_device',{
+        fetch(connect_config.backend_host + '/fetch_device',{
             method:'post',
             headers:{
             "Access-Control-Allow-Origin": "*",

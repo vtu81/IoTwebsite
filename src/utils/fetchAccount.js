@@ -1,10 +1,11 @@
+var connect_config = require('src/utils/config.json');
 /**
  * Fetch the user's account info
  * @returns 'account', an object of the user's information
  */
  const fetchAccount = (msgid) => {
     return new Promise((resolve) => {
-        fetch('/fetch_account',{
+        fetch(connect_config.backend_host + '/fetch_account',{
             method:'post',
             headers:{
             "Access-Control-Allow-Origin": "*",

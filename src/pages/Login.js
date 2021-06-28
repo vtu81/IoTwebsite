@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import FacebookIcon from 'src/icons/Facebook';
 import GoogleIcon from 'src/icons/Google';
+var connect_config = require('src/utils/config.json');
 
 const Login = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const Login = () => {
               var obj = {"email": values.email, "password_hash": password_hash};
               var sessionStorage = window.sessionStorage;
 
-              fetch('/login',{
+              fetch(connect_config.backend_host + '/login',{
                   method:'post',
                   headers:{
                     "Access-Control-Allow-Origin": "*",

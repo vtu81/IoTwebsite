@@ -1,10 +1,11 @@
+var connect_config = require('src/utils/config.json');
 /**
  * Fetch all user's messages
  * @returns 'messages', an array of messages similar to the one in 'src/__mocks__/messages.js'
  */
 const fetchAllMessages = () => {
 return new Promise((resolve) => {
-    fetch('/fetch_message',{
+    fetch(connect_config.backend_host + '/fetch_message',{
         method:'post',
         headers:{
         "Access-Control-Allow-Origin": "*",

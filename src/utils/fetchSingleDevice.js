@@ -1,6 +1,8 @@
+var connect_config = require('src/utils/config.json');
+
 const fetchSingleDevice = (clientid) => {
     return new Promise((resolve) => {
-        fetch('/fetch_device/single',{
+        fetch(connect_config.backend_host + '/fetch_device/single',{
             method:'post',
             headers:{
             "Access-Control-Allow-Origin": "*",

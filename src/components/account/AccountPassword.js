@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+var connect_config = require('src/utils/config.json');
 
 const AccountPassword = () => {
   return (
@@ -42,7 +43,7 @@ const AccountPassword = () => {
         console.log('password md5 hash: ', password_hash);
         console.log('old password md5 hash: ', old_password_hash);
 
-        fetch('/update_password',{
+        fetch(connect_config.backend_host + '/update_password',{
           method:'post',
           headers:{
             "Access-Control-Allow-Origin": "*",

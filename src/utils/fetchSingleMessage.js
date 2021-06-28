@@ -1,10 +1,11 @@
+var connect_config = require('src/utils/config.json');
 /**
  * Fetch a single message with a specific msgid
  * @returns 'message', a message similar to a member of the one in 'src/__mocks__/messages.js'
  */
 const fetchSingleMessage = (msgid) => {
 return new Promise((resolve) => {
-    fetch('/fetch_message/single',{
+    fetch(connect_config.backend_host + '/fetch_message/single',{
         method:'post',
         headers:{
         "Access-Control-Allow-Origin": "*",

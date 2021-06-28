@@ -38,6 +38,7 @@ import fetchDeviceList from 'src/utils/fetchDeviceList';
 import DeviceListToolbar from 'src/components/devices/DeviceListToolbar';
 import DeviceChip from 'src/components/shared/DeviceChip';
 import { Navigate } from 'react-router-dom';
+var connect_config = require('src/utils/config.json');
 
 const DeviceList = () => {
   const [devices, setDevices] = useState([]);
@@ -142,6 +143,13 @@ const DeviceList = () => {
                 if(i < devices.length) setDeletingDevice(true);
                 else window.alert('No device selected! Please select some devices to delete.');
             }}
+            refreshMessages={() => {
+              fetchDeviceList().then((data) => {
+                setDevices(data);
+                setAllDevices(data);
+                // setChecked(new Array(data.length).fill(false));
+              })
+            }}
             addDevice={() => {setAddingDevice(true)}}
             searchDevices={(search_content) => {
               searchByContent(search_content);
@@ -235,7 +243,7 @@ const DeviceList = () => {
             console.log(values);
             setSubmitting(false);
 
-            fetch('/add_device',{
+            fetch(connect_config.backend_host + '/add_device',{
                 method:'post',
                 headers:{
                   "Access-Control-Allow-Origin": "*",
@@ -406,7 +414,7 @@ const DeviceList = () => {
               }
               console.log('Delete devices: ', delete_devices);
               delete_devices.map((device, index) => {
-                fetch('/delete_device',{
+                fetch(connect_config.backend_host + '/delete_device',{
                     method:'post',
                     headers:{
                       "Access-Control-Allow-Origin": "*",

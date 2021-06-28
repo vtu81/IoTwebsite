@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-
+var connect_config = require('src/utils/config.json');
 
 const AccountProfileDetails = ({account}) => {
   return (
@@ -28,7 +28,7 @@ const AccountProfileDetails = ({account}) => {
       }
       onSubmit={(values, {setSubmitting}) => {
         console.log(values);
-        fetch('/update_account',{
+        fetch(connect_config.backend_host + '/update_account',{
           method:'post',
           headers:{
             "Access-Control-Allow-Origin": "*",
