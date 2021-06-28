@@ -1,6 +1,6 @@
 import React from "react";
 import ParticlesBg from "particles-bg";
-import Fade from "react-reveal";
+import Fade from "react-awesome-reveal";
 import { useState, useEffect, useRef } from 'react';
 import Image1 from 'src/theme/demo1.png'
 import Image2 from 'src/theme/demo2.png'
@@ -106,8 +106,8 @@ const Home = () => {
                 </h3>
                 </Fade>
                 <hr />
-                <Fade bottom duration={2000}>
-                    <ul className="social">
+                <Fade bottom duration={1500}>
+                    <ul className="social" style={{display: 'flex', justifyContent: 'center'}}>
                         <a
                             href="/register"
                             className="button btn"
@@ -120,9 +120,9 @@ const Home = () => {
                         </a>
                     </ul>
                 </Fade>
-                <Fade bottom duration={2000}>
-                    <ul className="social">
-                        <a href="http://vtu.life" style={{marginRight: 1.6 + 'em', marginLeft: 1 + 'em'}}>
+                <Fade bottom duration={1500}>
+                    <ul className="social" style={{display: 'flex', justifyContent: 'center'}}>
+                        <a href="http://vtu.life" style={{marginRight: 1.6 + 'em', marginLeft: 0 + 'em'}}>
                             <i className="fa fa-link"></i>VTU
                         </a>
                         <a href="https://github.com/vtu81/IoTwebsite" style={{marginLeft: 1 + 'em'}}>
