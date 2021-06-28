@@ -31,8 +31,8 @@
   "dependencies": {
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
-    "@material-ui/core": "^5.0.0-alpha.28",
-    "@material-ui/icons": "^5.0.0-alpha.28",
+    "@material-ui/core": "5.0.0-alpha.28",
+    "@material-ui/icons": "5.0.0-alpha.28",
     "@material-ui/styles": "^4.10.0",
     "blueimp-md5": "^2.18.0",
     "chart.js": "^2.9.4",
