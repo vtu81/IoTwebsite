@@ -257,7 +257,8 @@ Now, switch back to the root of **this directory**. Set up your MQTT config at `
 
 ```json
 {
-    "host": "YOUR MQTT HOST" # e.g. `mqtt://localhost`
+    "host": "YOUR MQTT HOST", # e.g. mqtt://localhost
+  	"topic": "YOUR MQTT TOPIC" # by default 'testapp', change if your iotclients use another topic
 }
 ```
 
@@ -274,7 +275,7 @@ mvn clean package
 
 2. Run
 - Put `iot.properties` at the same directory of `iotclient-1.0.0.jar`.
-- Alter `iot.properties` to configure device number and related info.
+- Alter `iot.properties` to configure device number, mqtt topic (by default **testapp**) and related info.
 - Run with
 ```bash
 java -jar iotclient-1.0.0.jar
