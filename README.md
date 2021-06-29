@@ -88,21 +88,27 @@ Now with `npm run whole`, you should see the home page now :). But it's not done
 
 You can set up your MySQL server anywhere you like, even not at localhost.
 
-First create a database named `mqtt`:
+Initialize the **mqtt** database in MySQL with the following command:
 
 ```mysql
-create database mqtt;
+create databse mqtt;
 use mqtt;
-```
 
-Then set up some necessary tables in MySQL: 
+DROP TABLE IF EXISTS `mqtt_client`;
+CREATE TABLE `mqtt_client` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `clientid` varchar(64) DEFAULT NULL,
+    `state` varchar(3) DEFAULT NULL,
+    `node` varchar(64) DEFAULT NULL,
+    `online_at` datetime DEFAULT NULL,
+    `offline_at` datetime DEFAULT NULL,
+    `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `mqtt_client_idx` (`clientid`),
+    UNIQUE KEY `mqtt_client_key` (`clientid`),
+    INDEX topic_index(`id`, `clientid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
 
-```mysql
-# Table mqtt_client is only for EMQX server to write, and nodejs server to read
-# Check https://docs.emqx.cn/enterprise/v4.3/backend/backend_mysql.html#mysql-设备在线状态表 for more detail
-CREATE TABLE `mqtt_client` (   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,   `clientid` varchar(64) DEFAULT NULL,   `state` varchar(3) DEFAULT NULL,   `node` varchar(64) DEFAULT NULL,   `online_at` datetime DEFAULT NULL,   `offline_at` datetime DEFAULT NULL,   `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,   PRIMARY KEY (`id`),   KEY `mqtt_client_idx` (`clientid`),   UNIQUE KEY `mqtt_client_key` (`clientid`),   INDEX topic_index(`id`, `clientid`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
-
-# The following 3 tables are for nodejs server to read and write
 create table account(
 	user_name varchar(30) primary key,
 	password_hash varchar(64),
@@ -115,20 +121,74 @@ create table device_info(
 	user_name varchar(64),
 	primary key (clientid, user_name),
 	foreign key (clientid) references mqtt_client(clientid),
- 	foreign key (user_name) references account(user_name));
+    foreign key (user_name) references account(user_name));
 
 create table message(
-  msgid int unsigned primary key auto_increment,
-  alert bit,
-  clientid varchar(64),
-  info varchar(256),
-  lat numeric(20, 14),
-  lng numeric(20, 14),
-  timestamp timestamp,
-  value int,
+    msgid int unsigned primary key auto_increment,
+    alert bit,
+    clientid varchar(64),
+    info varchar(256),
+    lat numeric(20, 14),
+    lng numeric(20, 14),
+    timestamp timestamp,
+    value int,
 	foreign key (clientid) references mqtt_client(clientid)
 );
+
+CREATE TABLE `mqtt_sub` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `clientid` varchar(64) DEFAULT NULL,
+    `topic` varchar(180) DEFAULT NULL,
+    `qos` tinyint(1) DEFAULT NULL,
+    `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `mqtt_sub_idx` (`clientid`,`topic`,`qos`),
+    UNIQUE KEY `mqtt_sub_key` (`clientid`,`topic`),
+    INDEX topic_index(`id`, `topic`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
+
+CREATE TABLE `mqtt_msg` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `msgid` varchar(64) DEFAULT NULL,
+    `topic` varchar(180) NOT NULL,
+    `sender` varchar(64) DEFAULT NULL,
+    `node` varchar(64) DEFAULT NULL,
+    `qos` tinyint(1) NOT NULL DEFAULT '0',
+    `retain` tinyint(1) DEFAULT NULL,
+    `payload` blob,
+    `arrived` datetime NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX topic_index(`id`, `topic`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
+
+CREATE TABLE `mqtt_retain` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `topic` varchar(180) DEFAULT NULL,
+    `msgid` varchar(64) DEFAULT NULL,
+    `sender` varchar(64) DEFAULT NULL,
+    `node` varchar(64) DEFAULT NULL,
+    `qos` tinyint(1) DEFAULT NULL,
+    `payload` blob,
+    `arrived` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `mqtt_retain_key` (`topic`),
+    INDEX topic_index(`id`, `topic`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
+
+DROP TABLE IF EXISTS `mqtt_acked`;
+CREATE TABLE `mqtt_acked` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `clientid` varchar(64) DEFAULT NULL,
+    `topic` varchar(180) DEFAULT NULL,
+    `mid` int(11) unsigned DEFAULT NULL,
+    `created` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `mqtt_acked_key` (`clientid`,`topic`),
+    INDEX topic_index(`id`, `topic`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8MB4;
 ```
+
+> Actually, only the first 4 tables (`mqtt_client`, `account`, `device_info`, `message`) are used. But you need to create all of them for the EMQX Enterprise server to correctly activate its mysql plugin!
 
 Then set up your MySQL account info at `server/utils/mysql_config.json` (create it if not exist!):
 
@@ -142,19 +202,58 @@ Then set up your MySQL account info at `server/utils/mysql_config.json` (create 
 }
 ```
 
-### EMQX Server
+### EMQX Enterprise Server
 
-Follow the [EMQX official guide](https://docs.emqx.cn/enterprise/v4.3/#开始使用) to set up your EMQX **Enterprise** server. I recommend you to install EMQX Enterprise via its zip file [here](https://www.emqx.cn/downloads#enterprise), not package management tools like `apt`. After activating it through a free trial license, you can start the MQTT server via
+Follow the [EMQX official guide](https://docs.emqx.cn/enterprise/v4.3/#开始使用) to set up your EMQX **Enterprise** server. I recommend you to install EMQX Enterprise via its zip file [here](https://www.emqx.cn/downloads#enterprise), not package management tools like `apt`. After activating it with a free trial license, you can start the EMQX server via
 
 ```bash
 [PATH TO EMQX ENTERPRISE]/bin/emqx start
 ```
 
+Most importantly, remember to enable the `emqx_backend_mysql` plugin to let the MQTT server store device info into the `mqtt` database (check [here](https://docs.emqx.cn/enterprise/v4.3/backend/backend_mysql.html) to see the full steps and detail). For me, I set up the MySQL server account info at `[PATH TO EMQX ENTERPRISE]/etc/plugins/emqx_backend_mysql.conf`. I suggest you directly use my `emqx_backend_mysql.conf`:
 
+```conf
+##====================================================================
+## Configuration for EMQ X MySQL Backend
+##====================================================================
 
-Most importantly, remember to enable the `emqx_backend_mysql` plugin to let the MQTT server store device info into the `mqtt` database (check [here](https://docs.emqx.cn/enterprise/v4.3/backend/backend_mysql.html) to see the full steps and detail). For me, I set up the MySQL server account info at `[PATH TO EMQX ENTERPRISE]/etc/plugins/emqx_backend_mysql.conf`. Then, enable **emqx_backend_mysql** at EMQX dashboard page `[YOUR MQTT HOST]:18083/#/plugins` with a mouse click. If you have set up the MySQL account, **mqtt** database and several necessary tables previously, it should be working!
+## MySQL Server
+backend.mysql.pool1.server = localhost # or any other host
 
-Then set up your MQTT config at `server/utils/mqtt_config.json` (create it if not exist!):
+## MySQL Pool Size
+backend.mysql.pool1.pool_size = 8
+## MySQL Username
+backend.mysql.pool1.user = [USERNAME]
+## MySQL Password
+backend.mysql.pool1.password = [PASSWORD]
+## MySQL Database
+backend.mysql.pool1.database = mqtt # don't change the database's name
+
+## Client Connected Record 
+backend.mysql.hook.client.connected.1    = {"action": {"function": "on_client_connected"}, "pool": "pool1"}
+
+## Session Created Record 
+backend.mysql.hook.client.connected.2     = {"action": {"function": "on_subscribe_lookup"}, "pool": "pool1"}
+
+## Client DisConnected Record 
+backend.mysql.hook.client.disconnected.1 = {"action": {"function": "on_client_disconnected"}, "pool": "pool1"}
+```
+
+Then, enable **emqx_backend_mysql** with:
+
+```bash
+[PATH TO EMQX ENTERPRISE]/bin/emqx_ctl plugins load emqx_backend_mysql
+```
+
+If you set up successfully, you should see this line popping up:
+
+```bash
+Plugin emqx_backend_mysql loaded successfully.
+```
+
+If you have set up the MySQL account, **mqtt** database (in the last chapter) and several necessary tables previously, it should be working! Your IoT device status would be automatically stored into **mqtt** database while connecting to the EMQX server.
+
+Now, switch back to the root of **this directory**. Set up your MQTT config at `server/utils/mqtt_config.json` (create it if not exist!):
 
 ```json
 {
@@ -184,7 +283,7 @@ java -jar iotclient-1.0.0.jar
 
 ## Release Version
 
-It's quite necessary to build the frontend into a **release** version through `npm run build`. But before that, you may need to alter the configure file `src/utils/config.json`:
+It's quite necessary to compile the frontend into a **production build** (release) version through `npm run build`, which would be much lighter for deployment. But before compilation, you may need to alter the configure file `src/utils/config.json`:
 
 ```json
 {
