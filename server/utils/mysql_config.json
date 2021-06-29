@@ -1,0 +1,7 @@
+{
+    "host"     : [MYSQL HOST],
+    "user"     : [USERNAME],
+    "password" : [PASSWORD],
+    "database" : "mqtt",
+    "port"     : 3306
+}
