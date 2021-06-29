@@ -1,3 +1,4 @@
 {
-    "host": [YOUR MQTT HOST (starting with "mqtt://")]
+    "host": [YOUR MQTT HOST (starting with "mqtt://")],
+    "topic": "testapp"
 }
