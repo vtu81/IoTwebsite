@@ -6,10 +6,10 @@ var mqtt_config = require('./mqtt_config.json');
 var mqtt_client = mqtt.connect(mqtt_config.host);
 
 mqtt_client.on('connect', () => {
-    mqtt_client.subscribe('testapp', (err) => {
+    mqtt_client.subscribe(mqtt_config.topic, (err) => {
         if(!err)
         {
-            console.log('Successflly subscribed to topic \'testapp\'');
+            console.log('Successflly subscribed to topic', mqtt_config.topic);
         }
     })
 })
